@@ -1,7 +1,8 @@
 package com.zk.testapp.model
 
 class ListViewState(
-    val adapterList: List<Photo> = emptyList()
+    val adapterList: List<Photo> = emptyList(),
+    val error: String? = null
 )
 
 sealed class ViewEffect {

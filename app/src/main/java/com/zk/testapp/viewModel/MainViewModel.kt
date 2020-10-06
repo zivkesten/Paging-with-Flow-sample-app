@@ -4,46 +4,49 @@ import androidx.lifecycle.*
 import com.zk.testapp.model.Event
 import com.zk.testapp.model.ListViewState
 import com.zk.testapp.model.ViewEffect
-import com.zk.testapp.repository.Repository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.zk.testapp.data.PixaBayRepository
+import com.zk.testapp.model.PhotosResults
+import kotlinx.coroutines.*
 
-class MainViewModel(private val repository: Repository) : ViewModel() {
+@ExperimentalCoroutinesApi
+@FlowPreview
+class MainViewModel(private val pixaBayRepository: PixaBayRepository) : ViewModel() {
 
 	private var pageNum: Int = 1
 
-	private val viewState = MutableLiveData<ListViewState>()
+	//private val viewState = MutableLiveData<ListViewState>()
 
 	private val viewAction = MutableLiveData<ViewEffect>()
 
-	val obtainState: LiveData<ListViewState> = viewState
+
 
 	val obtainViewEffects: LiveData<ViewEffect> = viewAction
 
+	private val fetchLiveData = MutableLiveData<String>()
+
+	private val viewState: LiveData<ListViewState> = fetchLiveData.switchMap {
+		liveData {
+			val photos = pixaBayRepository.getPhotos().asLiveData(Dispatchers.Main)
+			emitSource(photos.map { results ->
+				when (results) {
+					is PhotosResults.Success -> ListViewState(results.data)
+					is PhotosResults.Error -> ListViewState(error = results.error.toString())
+				}
+			})
+		}
+	}
+
+	val obtainState: LiveData<ListViewState> = viewState
+
 	fun event(event: Event) {
 		when(event) {
-			is Event.ScreenLoad, Event.SwipeToRefreshEvent -> getPhotosFromApi(1)
-			is Event.LoadNextPageEvent -> getPhotosFromApi(pageNum)
+			is Event.ScreenLoad, Event.SwipeToRefreshEvent -> getPhotosFromApi()
+			is Event.LoadNextPageEvent -> getPhotosFromApi()
 			is Event.ListItemClicked -> viewAction.postValue(ViewEffect.TransitionToScreen(event.item))
 		}
 	}
 
-	private fun getPhotosFromApi(pageNum: Int) {
-		if(pageNum > 1) {
-			this.pageNum = pageNum + 1
-		}
-		viewModelScope.launch {
-			val photos = loadPhotosFromApi(pageNum)
-			photos?.let {
-				val state = ListViewState(photos.photos)
-				viewState.postValue(state)
-			}
-		}
+	private fun getPhotosFromApi() {
+		fetchLiveData.postValue("j")
 	}
-
-	private suspend fun loadPhotosFromApi(pageNum: Int) =
-		withContext(Dispatchers.IO) {
-			repository.getPhotos(pageNum)
-		}
 }

@@ -24,9 +24,17 @@ private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
 private fun provideOkHttpClient(): OkHttpClient {
     val connectTimeout = 15 // 15s
     val readTimeout = 15 // 15s
-
+    val key = BuildConfig.PHOTOS_API_KEY
     val builder = OkHttpClient().newBuilder()
+        .addInterceptor { chain ->
+            val request = chain.request().newBuilder()
+            val originalHttpUrl = chain.request().url
+            val url = originalHttpUrl.newBuilder().addQueryParameter("key", key).build()
+            request.url(url)
+            return@addInterceptor chain.proceed(request.build())
+        }
         .connectTimeout(connectTimeout.toLong(), TimeUnit.SECONDS)
+
         .readTimeout(readTimeout.toLong(), TimeUnit.SECONDS)
 
     if (BuildConfig.DEBUG) {
