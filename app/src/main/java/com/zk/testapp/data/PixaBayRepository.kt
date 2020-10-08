@@ -61,7 +61,7 @@ class PixaBayRepository(private val service: PixaBayService)  {
             val response = service.getPics(lastRequestedPage)
             Log.d("PixaBayRepository", "response $response")
             val photos = response.photos
-            //inMemoryCache.addAll(repos)
+            inMemoryCache.addAll(photos)
             fetchResults.offer(PhotosResults.Success(photos))
         } catch (exception: IOException) {
             fetchResults.offer(PhotosResults.Error(exception))

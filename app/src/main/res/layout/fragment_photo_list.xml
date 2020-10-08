@@ -8,18 +8,29 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<androidx.recyclerview.widget.RecyclerView
-			xmlns:app="http://schemas.android.com/apk/res-auto"
+		<FrameLayout
 			xmlns:tools="http://schemas.android.com/tools"
-			android:id="@+id/list"
-			android:name="com.zk.samplenewsapp.ArticleListFragment"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_marginLeft="16dp"
-			android:layout_marginRight="16dp"
-			app:layoutManager="LinearLayoutManager"
-			tools:context=".views.list.ArticleListFragment"
-			tools:listitem="@layout/photo_list_item" />
+			android:layout_marginRight="16dp">
+
+			<ProgressBar
+				android:id="@+id/progressBar"
+				style="?android:progressBarStyle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"/>
+
+			<androidx.recyclerview.widget.RecyclerView
+				xmlns:app="http://schemas.android.com/apk/res-auto"
+				xmlns:tools="http://schemas.android.com/tools"
+				android:id="@+id/list"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				app:layoutManager="LinearLayoutManager"
+				tools:listitem="@layout/photo_list_item" />
+		</FrameLayout>
 
 	</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

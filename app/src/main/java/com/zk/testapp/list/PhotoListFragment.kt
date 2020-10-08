@@ -18,8 +18,13 @@ import com.zk.testapp.model.Event
 import com.zk.testapp.model.ListViewState
 import com.zk.testapp.model.Photo
 import com.zk.testapp.viewModel.MainViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnItemClickListener {
 
 	companion object {
@@ -50,7 +55,7 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 		setupBinding()
 		observeViewState()
 		if (savedInstanceState == null) {
-			viewModel.event(Event.ScreenLoad)
+			viewModel.onEvent(Event.ScreenLoad)
 		}
 	}
 
@@ -84,16 +89,20 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 
 	private fun observeViewState() {
 		viewModel.obtainState.observe(viewLifecycleOwner, {
+			Log.d("Zivi", "observeViewState obtainState result: ${it.adapterList.size}")
+
 			render(it)
 		})
 	}
 
 	private fun render(state: ListViewState) {
 		photosAdapter.update(state.adapterList)
+		state.loadingStateVisibility?.let { binding.progressBar.visibility = it }
 	}
 
+
 	override fun onRefresh() {
-		viewModel.event(Event.SwipeToRefreshEvent)
+		viewModel.onEvent(Event.SwipeToRefreshEvent)
 	}
 
 	override fun onItemClick(item: Photo) {
