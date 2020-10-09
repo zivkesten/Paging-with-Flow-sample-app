@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -18,9 +20,10 @@ import com.zk.testapp.model.Event
 import com.zk.testapp.model.ListViewState
 import com.zk.testapp.model.Photo
 import com.zk.testapp.viewModel.MainViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 @FlowPreview
@@ -42,6 +45,7 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 	// Lazy Inject ViewModel
 	private val viewModel by sharedViewModel<MainViewModel>()
 
+
 	override fun onCreateView(
 		inflater: LayoutInflater, container: ViewGroup?,
 		savedInstanceState: Bundle?
@@ -55,7 +59,21 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 		setupBinding()
 		observeViewState()
 		if (savedInstanceState == null) {
-			viewModel.onEvent(Event.ScreenLoad)
+			lifecycleScope.launch {
+				viewModel.onSuspendedEvent(Event.ScreenLoad)
+			}
+		}
+	}
+
+	private fun setScrollToTopWHenRefreshedFromNetwork() {
+		// Scroll to top when the list is refreshed from network.
+		lifecycleScope.launch {
+			photosAdapter.loadStateFlow
+				// Only emit when REFRESH LoadState for RemoteMediator changes.
+				.distinctUntilChangedBy { it.refresh }
+				// Only react to cases where Remote REFRESH completes i.e., NotLoading.
+				.filter { it.refresh is LoadState.NotLoading }
+				.collect { binding.list.scrollToPosition(0) }
 		}
 	}
 
@@ -90,16 +108,16 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 	private fun observeViewState() {
 		viewModel.obtainState.observe(viewLifecycleOwner, {
 			Log.d("Zivi", "observeViewState obtainState result: ${it.adapterList.size}")
-
 			render(it)
 		})
 	}
 
 	private fun render(state: ListViewState) {
-		photosAdapter.update(state.adapterList)
 		state.loadingStateVisibility?.let { binding.progressBar.visibility = it }
+		lifecycleScope.launch {
+			state.page?.let { photosAdapter.submitData(it) }
+		}
 	}
-
 
 	override fun onRefresh() {
 		viewModel.onEvent(Event.SwipeToRefreshEvent)

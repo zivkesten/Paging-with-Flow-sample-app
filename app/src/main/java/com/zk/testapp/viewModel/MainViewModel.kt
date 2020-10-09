@@ -3,15 +3,14 @@ package com.zk.testapp.viewModel
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
+import androidx.paging.cachedIn
 import com.zk.testapp.data.PixaBayRepository
 import com.zk.testapp.model.*
 import com.zk.testapp.presentation.base.BaseViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import java.lang.Exception
+import kotlinx.coroutines.flow.onEach
 
-
-@FlowPreview
 class MainViewModel @ExperimentalCoroutinesApi constructor(
 	private val pixaBayRepository: PixaBayRepository)
 	: BaseViewModel<ListViewState, ViewEffect, Event, Result>(ListViewState()) {
@@ -28,40 +27,30 @@ class MainViewModel @ExperimentalCoroutinesApi constructor(
 
 	val obtainState: LiveData<ListViewState> = viewState
 
-	private fun onDataFlowEventContent(photos: List<Photo>) {
-		Log.d("Zivi", "onDataFlowEventContent: ${photos.size}")
-		resultToViewState(Lce.Content(Result.Content(photos)))
-	}
-
-	private fun onDataFlowEventError(error: Exception) {
-		Log.d("Zivi", "onDataFlowEventError: ${error.localizedMessage}")
-		resultToViewState(Lce.Error(Result.Error(errorMessage = error.localizedMessage)))
-	}
-
-	@OptIn(ExperimentalCoroutinesApi::class)
-	private fun onScreenLoad() {
-		viewModelScope.launch(Dispatchers.IO) {
-			pixaBayRepository.getPhotos().collect { results ->
-				when(results) {
-					is PhotosResults.Success -> {
-						Log.d("Zivi", "PhotosResults.Success result: ${results.data.size}")
-						onEvent(Event.DataFlowEventContent(results.data))
-					}
-					is PhotosResults.Error -> {
-						Log.d("Zivi", "PhotosResults.Error error: ${results.error.localizedMessage}")
-						onEvent(Event.DataFlowEventError(results.error))
-					}
+	private suspend fun onScreenLoad(){
+		resultToViewState(Lce.Loading())
+		Log.d("Zivi", "onScreenLoad before return")
+		loadJob?.cancel()
+		loadJob = viewModelScope.launch(Dispatchers.IO) {
+			pixaBayRepository.getPhotos()
+				.cachedIn(viewModelScope)
+				.onEach { ddf -> Log.d("Zivi", "onScreenLoad returned FLOW: $ddf")}
+				.collect { results ->
+					Log.d("Zivi", "collect: $results")
+					resultToViewState(Lce.Content(Result.Content(results)))
 				}
-			}
 		}
 	}
 
 	override fun eventToResult(event: Event) {
 		when(event) {
-			is Event.ScreenLoad -> onScreenLoad()
-			is Event.DataFlowEventContent -> onDataFlowEventContent(event.photos)
-			is Event.DataFlowEventError -> onDataFlowEventError(event.error)
 			is Event.ListItemClicked -> viewAction.postValue(ViewEffect.TransitionToScreen(event.item))
+		}
+	}
+
+	override suspend fun suspendEventToResult(event: Event) {
+		when(event) {
+			is Event.ScreenLoad -> onScreenLoad()
 		}
 	}
 
@@ -77,7 +66,7 @@ class MainViewModel @ExperimentalCoroutinesApi constructor(
 				when (result.packet) {
 					is Result.Content ->
 						currentViewState.copy(
-							adapterList = result.packet.content,
+							page = result.packet.content,
 							loadingStateVisibility = View.GONE)
 					else -> currentViewState.copy()
 				}

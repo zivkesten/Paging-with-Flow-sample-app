@@ -1,12 +1,14 @@
 package com.zk.testapp.model
 
 import android.view.View
+import androidx.paging.PagingData
 import com.zk.testapp.presentation.base.BaseEvent
 import com.zk.testapp.presentation.base.BaseResult
 import com.zk.testapp.presentation.base.BaseViewEffect
 import com.zk.testapp.presentation.base.BaseViewState
 
 data class ListViewState(
+    val page: PagingData<Photo>? = null,
     val adapterList: List<Photo> = emptyList(),
     val errorMessageResource: Int? = null,
     val errorMessage: String? = null,
@@ -19,15 +21,12 @@ sealed class ViewEffect: BaseViewEffect {
 
 sealed class Event: BaseEvent {
     object SwipeToRefreshEvent: Event()
-    object LoadNextPageEvent: Event()
-    object ScreenLoad: Event()
-    data class DataFlowEventContent(val photos: List<Photo>): Event()
-    data class DataFlowEventError(val error: Exception): Event()
+    /*suspended*/object ScreenLoad: Event()
     data class ListItemClicked(val item: Photo): Event()
 }
 
 sealed class Result: BaseResult {
     data class Error(val errorMessage: String?): Result()
-    data class Content(val content: List<Photo>): Result()
-    data class ItemClickedResult(val item: Photo, val sharedElement: View) : Result()
+    data class Content(val content: PagingData<Photo>): Result()
+    //data class ItemClickedResult(val item: Photo, val sharedElement: View) : Result()
 }

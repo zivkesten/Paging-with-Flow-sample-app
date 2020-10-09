@@ -18,14 +18,21 @@ abstract class BaseViewModel<ViewState : BaseViewState,
     val viewState: LiveData<ViewState> get() = viewStateLD
     val viewEffects: LiveData<ViewAction> get() = viewEffectLD
 
-    var loadFromBEJob: Job? = null
+    var loadJob: Job? = null
 
     fun onEvent(event: Event) {
         Log.d("Zivi","----- event ${event.javaClass.simpleName}")
         eventToResult(event)
     }
 
+    suspend fun onSuspendedEvent(event: Event) {
+        Log.d("Zivi","----- suspend event ${event.javaClass.simpleName}")
+        suspendEventToResult(event)
+    }
+
     abstract fun eventToResult(event: Event)
+
+    abstract suspend fun suspendEventToResult(event: Event)
 
     abstract fun resultToViewState(result: Lce<Result>)
 
