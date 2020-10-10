@@ -1,6 +1,7 @@
 package com.zk.testapp.model
 
 import android.view.View
+import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.zk.testapp.presentation.base.BaseEvent
@@ -23,7 +24,7 @@ sealed class ViewEffect: BaseViewEffect {
 
 sealed class Event: BaseEvent {
     object SwipeToRefreshEvent: Event()
-    data class LoadError(val state: LoadState.Error): Event()
+    data class LoadState(val state: CombinedLoadStates): Event()
     data class ListItemClicked(val item: Photo): Event()
     // Suspended
     object ScreenLoad: Event()

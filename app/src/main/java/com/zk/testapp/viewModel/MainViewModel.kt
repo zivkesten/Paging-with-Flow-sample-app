@@ -5,6 +5,8 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.cachedIn
 import com.zk.testapp.data.PixaBayRepository
 import com.zk.testapp.model.*
@@ -53,14 +55,26 @@ class MainViewModel @ExperimentalCoroutinesApi constructor(
 	override fun eventToResult(event: Event) {
 		when(event) {
 			is Event.ListItemClicked -> viewAction.postValue(ViewEffect.TransitionToScreen(event.item))
-			is Event.LoadError -> onLoadStateError(event.state.error)
+			is Event.LoadState -> onLoadState(event.state)
 		}
 	}
 
-	private fun onLoadStateError(error: Throwable) {
+	private fun onLoadState(state: CombinedLoadStates) {
 		// TODO: Add mapper from throwable to human readable message
-		Log.d("Zivi", "Error loading: $error")
-		resultToViewState(Lce.Error(Result.Error(errorMessage = error.localizedMessage)))
+		Log.d("Zivi", "loading state: $state")
+		when (state.source.refresh) {
+			is LoadState.Error -> {
+				val errorState = state.source.append as? LoadState.Error
+					?: state.source.prepend as? LoadState.Error
+					?: state.append as? LoadState.Error
+					?: state.prepend as? LoadState.Error
+				errorState?.let {
+					resultToViewState(Lce.Error(Result.Error(errorMessage = errorState.error.localizedMessage)))
+				}
+			}
+			is LoadState.Loading -> resultToViewState(Lce.Loading())
+		}
+
 	}
 
 	override suspend fun suspendEventToResult(event: Event) {
@@ -76,7 +90,7 @@ class MainViewModel @ExperimentalCoroutinesApi constructor(
 			is Lce.Loading -> {
 				currentViewState.copy(
 					loadingStateVisibility = View.VISIBLE,
-					errorVisibility = View.VISIBLE)
+					errorVisibility = View.GONE)
 			}
 			//Content state
 			is Lce.Content -> {

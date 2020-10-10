@@ -63,24 +63,8 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 		if (savedInstanceState == null) {
 			lifecycleScope.launch {
 				viewModel.onSuspendedEvent(Event.ScreenLoad)
-				handleLoadErrorState()
 			}
 		}
-	}
-
-	private suspend fun handleLoadErrorState(){
-		photosAdapter.loadStateFlow
-			// Only emit when REFRESH LoadState
-			.distinctUntilChangedBy { it.refresh }
-			// Only react to cases where Remote REFRESH is of ERROR Type
-			.filter { it.refresh is LoadState.Error }
-			// Map the load state to an error state by casting
-			.map { it.refresh as LoadState.Error }
-			// Handle the error
-			.collect {
-				Log.d("Zivi", "error result: ${it.toString()}")
-				viewModel.onEvent(Event.LoadError(it))
-			}
 	}
 
 	private fun setupBinding() {
@@ -98,6 +82,10 @@ class PhotoListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, OnIt
 			header = PhotosLoadStateAdapter { photosAdapter.retry() },
 			footer = PhotosLoadStateAdapter { photosAdapter.retry() }
 		)
+		photosAdapter.addLoadStateListener {
+			Log.d("Zivi", "loading state: ${it.toString()}")
+			viewModel.onEvent(Event.LoadState(it))
+		}
 		setScrollToTopWHenRefreshedFromNetwork()
 	}
 
