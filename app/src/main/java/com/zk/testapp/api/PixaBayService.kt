@@ -1,6 +1,5 @@
 package com.zk.testapp.api
 
-import com.zk.testapp.BuildConfig
 import com.zk.testapp.model.PhotoList
 import org.koin.dsl.module
 import retrofit2.Retrofit

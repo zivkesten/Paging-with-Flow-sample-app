@@ -9,19 +9,47 @@
 		android:layout_height="match_parent">
 
 		<FrameLayout
-
 			xmlns:tools="http://schemas.android.com/tools"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:clickable="true"
 			android:layout_marginLeft="16dp"
-			android:layout_marginRight="16dp">
+			android:layout_marginRight="16dp"
+			android:focusable="true">
 
-			<ProgressBar
-				android:id="@+id/progressBar"
-				style="?android:progressBarStyle"
-				android:layout_width="wrap_content"
+			<LinearLayout
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center"/>
+				android:orientation="vertical"
+				android:clickable="true"
+				android:padding="8dp"
+				android:focusable="true">
+				<Button
+					android:id="@+id/retry_button"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:clickable="true"
+					android:focusable="true"
+					android:foreground="?android:attr/selectableItemBackground"
+					android:text="@string/retry"/>
+				<TextView
+					android:id="@+id/main_list_error_msg"
+					android:textColor="?android:textColorPrimary"
+					android:textSize="@dimen/error_text_size"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:textAlignment="center"
+					tools:text="Timeout"/>
+				<ProgressBar
+					android:id="@+id/progress_bar"
+					style="?android:attr/progressBarStyle"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"/>
+
+			</LinearLayout>
 
 			<androidx.recyclerview.widget.RecyclerView
 				xmlns:app="http://schemas.android.com/apk/res-auto"

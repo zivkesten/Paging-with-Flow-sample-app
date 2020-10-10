@@ -1,7 +1,7 @@
 package com.zk.testapp
 
 import android.app.Application
-import com.zk.testapp.di.ViewModeslModule
+import com.zk.testapp.di.ViewModelsModule
 import com.zk.testapp.networking.networkModule
 import com.zk.testapp.api.apiModule
 import com.zk.testapp.data.repositoryModule
@@ -21,7 +21,7 @@ class TestVizApplication: Application() {
             androidLogger()
             androidContext(this@TestVizApplication)
             modules(listOf(
-                ViewModeslModule.modules,
+                ViewModelsModule.modules,
                 repositoryModule,
                 apiModule,
                 networkModule

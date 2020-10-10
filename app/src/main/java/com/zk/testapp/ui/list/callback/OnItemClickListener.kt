@@ -1,4 +1,4 @@
-package com.zk.testapp.mainLIst
+package com.zk.testapp.ui.list.callback
 
 import com.zk.testapp.model.Photo
 

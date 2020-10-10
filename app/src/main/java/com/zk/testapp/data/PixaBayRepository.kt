@@ -6,16 +6,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.zk.testapp.api.PixaBayService
 import com.zk.testapp.model.Photo
-import com.zk.testapp.model.PhotoList
-import com.zk.testapp.model.PhotosResults
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import org.koin.dsl.module
-import retrofit2.HttpException
-import java.io.IOException
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -37,7 +31,7 @@ class PixaBayRepository(private val service: PixaBayService)  {
         Log.d("PixaBayRepository", "New page")
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
+                pageSize = NETWORK_PAGE_SIZE,
                 enablePlaceholders = true
             ),
             pagingSourceFactory = { PixaBayPagingSource(service) }

@@ -14,7 +14,7 @@ abstract class BaseViewModel<ViewState : BaseViewState,
     ViewModel() {
 
     internal val viewStateLD = MutableLiveData<ViewState>()
-    internal val viewEffectLD = MutableLiveData<ViewAction>()
+    private val viewEffectLD = MutableLiveData<ViewAction>()
     val viewState: LiveData<ViewState> get() = viewStateLD
     val viewEffects: LiveData<ViewAction> get() = viewEffectLD
 

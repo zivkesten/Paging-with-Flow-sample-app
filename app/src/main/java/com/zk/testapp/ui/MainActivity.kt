@@ -1,4 +1,4 @@
-package com.zk.testapp.list
+package com.zk.testapp.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

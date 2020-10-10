@@ -1,7 +1,5 @@
 package com.zk.testapp.model
 
-import java.lang.Exception
-
 sealed class Lce<T> {
     class Loading<T> : Lce<T>() {
         override fun equals(other: Any?) = (other is Loading<*>)

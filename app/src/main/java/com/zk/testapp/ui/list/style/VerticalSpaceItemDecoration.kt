@@ -1,4 +1,4 @@
-package com.zk.testapp.mainLIst
+package com.zk.testapp.ui.list.style
 
 import android.graphics.Rect
 import android.view.View

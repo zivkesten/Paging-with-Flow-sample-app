@@ -1,6 +1,7 @@
 package com.zk.testapp.model
 
 import android.view.View
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import com.zk.testapp.presentation.base.BaseEvent
 import com.zk.testapp.presentation.base.BaseResult
@@ -12,7 +13,8 @@ data class ListViewState(
     val adapterList: List<Photo> = emptyList(),
     val errorMessageResource: Int? = null,
     val errorMessage: String? = null,
-    val loadingStateVisibility: Int? = View.GONE
+    val loadingStateVisibility: Int? = View.GONE,
+    val errorVisibility: Int? = View.GONE
 ): BaseViewState
 
 sealed class ViewEffect: BaseViewEffect {
@@ -21,8 +23,10 @@ sealed class ViewEffect: BaseViewEffect {
 
 sealed class Event: BaseEvent {
     object SwipeToRefreshEvent: Event()
-    /*suspended*/object ScreenLoad: Event()
+    data class LoadError(val state: LoadState.Error): Event()
     data class ListItemClicked(val item: Photo): Event()
+    // Suspended
+    object ScreenLoad: Event()
 }
 
 sealed class Result: BaseResult {

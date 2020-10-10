@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zk.testapp.mainLIst
+package com.zk.testapp.ui.list.types
 
 import android.content.Intent
 import android.net.Uri
@@ -27,16 +27,15 @@ import android.widget.TextView
 import com.squareup.picasso.Picasso
 import com.zk.testapp.R
 import com.zk.testapp.model.Photo
+import com.zk.testapp.ui.list.callback.OnItemClickListener
 
 /**
  * View Holder for a [Photo] RecyclerView list item.
  */
-class PhotoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class PhotoViewHolder(view: View, private val listener: OnItemClickListener) : RecyclerView.ViewHolder(view) {
     private val name: TextView = view.findViewById(R.id.primary_text)
     private val description: TextView = view.findViewById(R.id.sub_text)
     private val media: ImageView = view.findViewById(R.id.media_image)
-
-
     private var photo: Photo? = null
 
     init {
@@ -54,11 +53,11 @@ class PhotoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             name.text = resources.getString(R.string.loading)
             description.text = resources.getString(R.string.loading)
         } else {
-            showRepoData(photo)
+            showData(photo)
         }
     }
 
-    private fun showRepoData(photo: Photo) {
+    private fun showData(photo: Photo) {
         this.photo= photo
         name.text = photo.userName
         description.text = photo.likes.toString()
@@ -69,10 +68,10 @@ class PhotoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     }
 
     companion object {
-        fun create(parent: ViewGroup): PhotoViewHolder {
+        fun create(parent: ViewGroup, listener: OnItemClickListener): PhotoViewHolder {
             val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.photo_list_item, parent, false)
-            return PhotoViewHolder(view)
+            return PhotoViewHolder(view, listener)
         }
     }
 }
