@@ -34,13 +34,13 @@ android {
     buildTypes {
         debug {
             buildConfigField "String", "BASE_URL", "\"https://pixabay.com/\""
-            buildConfigField "String", "PHOTOS_API_KEY", "\"18131625-84d062aaf05a023714a29127a\""
+            buildConfigField "String", "PHOTOS_API_KEY", "<YOUR_API_KEY>"
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField "String", "BASE_URL", "\"https://pixabay.com/\""
-            buildConfigField "String", "PHOTOS_API_KEY", "18131625-84d062aaf05a023714a29127a"
+            buildConfigField "String", "PHOTOS_API_KEY", "<YOUR_API_KEY>"
         }
     }
 }
